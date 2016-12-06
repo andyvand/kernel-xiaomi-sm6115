@@ -173,6 +173,9 @@ typedef struct rndis_params {
 	u8			max_pkt_per_xfer;
 	const char		*vendorDescr;
 	void			(*resp_avail)(void *v);
+	void			(*flow_ctrl_enable)(bool enable,
+			struct rndis_params *params);
+
 	void			*v;
 	struct list_head	resp_queue;
 	spinlock_t		resp_lock;
@@ -180,7 +183,8 @@ typedef struct rndis_params {
 
 /* RNDIS Message parser and other useless functions */
 int  rndis_msg_parser(struct rndis_params *params, u8 *buf);
-struct rndis_params *rndis_register(void (*resp_avail)(void *v), void *v);
+struct rndis_params *rndis_register(void (*resp_avail)(void *v), void *v,
+	void (*flow_ctrl_enable)(bool enable, struct rndis_params *params));
 void rndis_deregister(struct rndis_params *params);
 int  rndis_set_param_dev(struct rndis_params *params, struct net_device *dev,
 			 u16 *cdc_filter);
@@ -200,5 +204,6 @@ int  rndis_signal_connect(struct rndis_params *params);
 int  rndis_signal_disconnect(struct rndis_params *params);
 int  rndis_state(struct rndis_params *params);
 extern void rndis_set_host_mac(struct rndis_params *params, const u8 *addr);
+void rndis_flow_control(struct rndis_params *params, bool enable_flow_control);
 
 #endif  /* _LINUX_RNDIS_H */

@@ -2694,6 +2694,7 @@ void mmc_start_host(struct mmc_host *host)
 	}
 
 	mmc_gpiod_request_cd_irq(host);
+	mmc_register_extcon(host);
 	_mmc_detect_change(host, 0, false);
 }
 
@@ -2723,6 +2724,7 @@ void mmc_stop_host(struct mmc_host *host)
 	}
 	mmc_bus_put(host);
 
+	mmc_unregister_extcon(host);
 	mmc_claim_host(host);
 	mmc_power_off(host);
 	mmc_release_host(host);

@@ -2158,6 +2158,7 @@ void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd, u16 index,
 			 bool on, unsigned long *flags);
 
 void xhci_hc_died(struct xhci_hcd *xhci);
+int xhci_get_core_id(struct usb_hcd *hcd);
 
 #ifdef CONFIG_PM
 int xhci_bus_suspend(struct usb_hcd *hcd);

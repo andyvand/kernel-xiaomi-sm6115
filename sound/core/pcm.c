@@ -881,6 +881,10 @@ static void free_chmap(struct snd_pcm_str *pstr)
 		up_write(&card->controls_rwsem);
 		pstr->chmap_kctl = NULL;
 	}
+	if (pstr->vol_kctl) {
+		snd_ctl_remove(pstr->pcm->card, pstr->vol_kctl);
+		pstr->vol_kctl = NULL;
+	}
 }
 
 static void snd_pcm_free_stream(struct snd_pcm_str * pstr)

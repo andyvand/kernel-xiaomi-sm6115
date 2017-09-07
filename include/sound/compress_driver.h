@@ -71,6 +71,7 @@ struct snd_compr_stream {
 	bool next_track;
 	bool partial_drain;
 	void *private_data;
+	struct snd_soc_pcm_runtime *be;
 };
 
 /**

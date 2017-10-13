@@ -37,6 +37,7 @@
 #include <trace/events/power.h>
 #define CREATE_TRACE_POINTS
 #include <trace/events/cpuhp.h>
+#include <linux/sched/clock.h>
 
 #include "smpboot.h"
 
@@ -1006,6 +1007,7 @@ static int __ref _cpu_down(unsigned int cpu, int tasks_frozen,
 {
 	struct cpuhp_cpu_state *st = per_cpu_ptr(&cpuhp_state, cpu);
 	int prev_state, ret = 0;
+	u64 start_time = 0;
 
 	if (num_online_cpus() == 1)
 		return -EBUSY;
@@ -1014,6 +1016,8 @@ static int __ref _cpu_down(unsigned int cpu, int tasks_frozen,
 		return -EINVAL;
 
 	cpus_write_lock();
+	if (trace_cpuhp_latency_enabled())
+		start_time = sched_clock();
 
 	cpuhp_tasks_frozen = tasks_frozen;
 
@@ -1052,6 +1056,7 @@ static int __ref _cpu_down(unsigned int cpu, int tasks_frozen,
 	}
 
 out:
+	trace_cpuhp_latency(cpu, 0, start_time, ret);
 	cpus_write_unlock();
 	/*
 	 * Do post unplug cleanup. This is still protected against
@@ -1144,8 +1149,11 @@ static int _cpu_up(unsigned int cpu, int tasks_frozen, enum cpuhp_state target)
 	struct cpuhp_cpu_state *st = per_cpu_ptr(&cpuhp_state, cpu);
 	struct task_struct *idle;
 	int ret = 0;
+	u64 start_time = 0;
 
 	cpus_write_lock();
+	if (trace_cpuhp_latency_enabled())
+		start_time = sched_clock();
 
 	if (!cpu_present(cpu)) {
 		ret = -EINVAL;
@@ -1193,6 +1201,7 @@ static int _cpu_up(unsigned int cpu, int tasks_frozen, enum cpuhp_state target)
 	target = min((int)target, CPUHP_BRINGUP_CPU);
 	ret = cpuhp_up_callbacks(cpu, st, target);
 out:
+	trace_cpuhp_latency(cpu, 1, start_time, ret);
 	cpus_write_unlock();
 	arch_smt_update();
 	cpu_up_down_serialize_trainwrecks(tasks_frozen);

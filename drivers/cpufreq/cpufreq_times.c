@@ -164,6 +164,36 @@ static int single_uid_time_in_state_show(struct seq_file *m, void *ptr)
 	return 0;
 }
 
+static int single_uid_time_in_state_show(struct seq_file *m, void *ptr)
+{
+	struct uid_entry *uid_entry;
+	unsigned int i;
+	u64 time;
+	uid_t uid = from_kuid_munged(current_user_ns(), *(kuid_t *)m->private);
+
+	if (uid == overflowuid)
+		return -EINVAL;
+
+	rcu_read_lock();
+
+	uid_entry = find_uid_entry_rcu(uid);
+	if (!uid_entry) {
+		rcu_read_unlock();
+		return 0;
+	}
+
+	for (i = 0; i < uid_entry->max_state; ++i) {
+		if (freq_index_invalid(i))
+			continue;
+		time = nsec_to_clock_t(uid_entry->time_in_state[i]);
+		seq_write(m, &time, sizeof(time));
+	}
+
+	rcu_read_unlock();
+
+	return 0;
+}
+
 static void *uid_seq_start(struct seq_file *seq, loff_t *pos)
 {
 	if (*pos >= HASH_SIZE(uid_hash_table))

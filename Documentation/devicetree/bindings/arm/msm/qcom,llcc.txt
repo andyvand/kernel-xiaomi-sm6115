@@ -18,6 +18,13 @@ Properties:
 	Value Type: <prop-encoded-array>
 	Definition: Start address and the the size of the register region.
 
+- cap-based-alloc-and-pwr-collapse:
+	Usage: optional
+	Value Type: Boolean
+	Definition: Property to express that HLOS can enable/disable capacity
+	based allocation and power collapse retention for a client. Include
+	this property to set it. If not set, it will be treated as false.
+
 Example:
 
 	cache-controller@1100000 {

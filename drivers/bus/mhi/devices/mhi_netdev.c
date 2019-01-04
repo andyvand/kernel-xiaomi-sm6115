@@ -162,9 +162,8 @@ static int mhi_netdev_poll(struct napi_struct *napi, int budget)
 	rx_work = mhi_poll(mhi_dev, budget);
 	if (rx_work < 0) {
 		MSG_ERR("Error polling ret:%d\n", rx_work);
-		rx_work = 0;
 		napi_complete(napi);
-		goto exit_poll;
+		return 0;
 	}
 
 	/* queue new buffers */
@@ -173,8 +172,6 @@ static int mhi_netdev_poll(struct napi_struct *napi, int budget)
 	/* complete work if # of packet processed less than allocated budget */
 	if (rx_work < budget)
 		napi_complete(napi);
-
-exit_poll:
 
 	MSG_VERB("polled %d pkts\n", rx_work);
 

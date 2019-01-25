@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/module.h>
@@ -3374,8 +3374,8 @@ static int dwc3_msm_probe(struct platform_device *pdev)
 
 	memcpy(mdwc->wakeup_irq, usb_irq_info, sizeof(usb_irq_info));
 	for (i = 0; i < USB_MAX_IRQ; i++) {
-		irq_type = IRQF_TRIGGER_RISING | IRQF_EARLY_RESUME |
-						IRQF_ONESHOT;
+		irq_type = IRQF_TRIGGER_HIGH | IRQF_ONESHOT |
+			IRQ_TYPE_LEVEL_HIGH | IRQF_EARLY_RESUME;
 		mdwc->wakeup_irq[i].irq = platform_get_irq_byname(pdev,
 					mdwc->wakeup_irq[i].name);
 		if (mdwc->wakeup_irq[i].irq < 0) {
@@ -3391,11 +3391,6 @@ static int dwc3_msm_probe(struct platform_device *pdev)
 		} else {
 			irq_set_status_flags(mdwc->wakeup_irq[i].irq,
 						IRQ_NOAUTOEN);
-			/* ss_phy_irq is level trigger interrupt */
-			if (!strcmp(mdwc->wakeup_irq[i].name, "ss_phy_irq"))
-				irq_type = IRQF_TRIGGER_HIGH | IRQF_ONESHOT |
-					IRQ_TYPE_LEVEL_HIGH | IRQF_EARLY_RESUME;
-
 			ret = devm_request_threaded_irq(&pdev->dev,
 					mdwc->wakeup_irq[i].irq,
 					msm_dwc3_pwr_irq,

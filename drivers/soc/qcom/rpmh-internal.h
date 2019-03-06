@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
  */
 
 
@@ -97,6 +97,7 @@ struct rpmh_ctrlr {
  * @lock:       synchronize state of the controller
  * @client:     handle to the DRV's client.
  * @irq:        IRQ at gic
+ * @ipc_log_ctx IPC logger handle
  */
 struct rsc_drv {
 	const char *name;
@@ -110,6 +111,7 @@ struct rsc_drv {
 	spinlock_t lock;
 	struct rpmh_ctrlr client;
 	int irq;
+	void *ipc_log_ctx;
 };
 
 int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg);

@@ -1504,18 +1504,23 @@ int mmc_host_set_uhs_voltage(struct mmc_host *host)
 	 * During a signal voltage level switch, the clock must be gated
 	 * for 5 ms according to the SD spec
 	 */
+	host->card_clock_off = true;
 	clock = host->ios.clock;
 	host->ios.clock = 0;
 	mmc_set_ios(host);
 
-	if (mmc_set_signal_voltage(host, MMC_SIGNAL_VOLTAGE_180))
+	if (mmc_set_signal_voltage(host, MMC_SIGNAL_VOLTAGE_180)) {
+		host->ios.clock = clock;
+		mmc_set_ios(host);
+		host->card_clock_off = false;
 		return -EAGAIN;
+	}
 
 	/* Keep clock gated for at least 10 ms, though spec only says 5 ms */
 	mmc_delay(10);
 	host->ios.clock = clock;
 	mmc_set_ios(host);
-
+	host->card_clock_off = false;
 	return 0;
 }
 

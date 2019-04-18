@@ -1221,7 +1221,7 @@ int mhi_process_ctrl_ev_ring(struct mhi_controller *mhi_cntrl,
 			break;
 		}
 		default:
-			MHI_ASSERT(1, "Unsupported ev type");
+			MHI_ERR("Unhandled Event: 0x%x\n", type);
 			break;
 		}
 

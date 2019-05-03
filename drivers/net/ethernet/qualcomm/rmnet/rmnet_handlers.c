@@ -154,7 +154,8 @@ static int rmnet_map_egress_handler(struct sk_buff *skb,
 	if (port->data_format & RMNET_FLAGS_EGRESS_MAP_CKSUMV4)
 		rmnet_map_checksum_uplink_packet(skb, orig_dev);
 
-	map_header = rmnet_map_add_map_header(skb, additional_header_len, 0);
+	map_header = rmnet_map_add_map_header(skb, additional_header_len, 0,
+					      port);
 	if (!map_header)
 		return -ENOMEM;
 

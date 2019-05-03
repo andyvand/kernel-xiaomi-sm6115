@@ -277,7 +277,8 @@ rmnet_map_ipv6_ul_csum_header(void *ip6hdr,
  * initialized to 0.
  */
 struct rmnet_map_header *rmnet_map_add_map_header(struct sk_buff *skb,
-						  int hdrlen, int pad)
+						  int hdrlen, int pad,
+						  struct rmnet_port *port)
 {
 	struct rmnet_map_header *map_header;
 	u32 padding, map_datalen;

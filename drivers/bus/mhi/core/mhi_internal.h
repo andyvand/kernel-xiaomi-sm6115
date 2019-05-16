@@ -749,6 +749,16 @@ int mhi_init_timesync(struct mhi_controller *mhi_cntrl);
 int mhi_create_timesync_sysfs(struct mhi_controller *mhi_cntrl);
 void mhi_destroy_timesync(struct mhi_controller *mhi_cntrl);
 
+/* timesync log support */
+static inline void mhi_timesync_log(struct mhi_controller *mhi_cntrl)
+{
+	struct mhi_timesync *mhi_tsync = mhi_cntrl->mhi_tsync;
+
+	if (mhi_tsync && mhi_cntrl->tsync_log)
+		mhi_cntrl->tsync_log(mhi_cntrl,
+				     readq_no_log(mhi_tsync->time_reg));
+}
+
 /* memory allocation methods */
 static inline void *mhi_alloc_coherent(struct mhi_controller *mhi_cntrl,
 				       size_t size,

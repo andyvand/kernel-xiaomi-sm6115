@@ -142,7 +142,7 @@ EXPORT_SYMBOL_GPL(clk_alpha_pll_regs);
 
 /* LUCID PLL specific settings and offsets */
 #define LUCID_PLL_CAL_VAL	0x44
-#define LUCID_PCAL_DONE		BIT(26)
+#define LUCID_PCAL_DONE		BIT(27)
 
 #define pll_alpha_width(p)					\
 		((PLL_ALPHA_VAL_U(p) - PLL_ALPHA_VAL(p) == 4) ?	\
@@ -1349,7 +1349,7 @@ static int alpha_pll_lucid_prepare(struct clk_hw *hw)
 	int ret;
 
 	/* Return early if calibration is not needed. */
-	regmap_read(pll->clkr.regmap, PLL_STATUS(pll), &regval);
+	regmap_read(pll->clkr.regmap, PLL_MODE(pll), &regval);
 	if (regval & LUCID_PCAL_DONE)
 		return 0;
 

@@ -367,6 +367,7 @@ ssize_t tmc_sg_table_get_data(struct tmc_sg_table *sg_table,
 	len = (len < (PAGE_SIZE - pg_offset)) ? len : (PAGE_SIZE - pg_offset);
 	if (len > 0)
 		*bufpp = page_address(data_pages->pages[pg_idx]) + pg_offset;
+
 	return len;
 }
 

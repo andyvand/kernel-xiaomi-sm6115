@@ -454,6 +454,7 @@ static struct msm_geni_serial_port *get_port_from_line(int line,
 	struct msm_geni_serial_port *port = NULL;
 
 	if (is_console) {
+		/* Max 1 port supported as of now */
 		if ((line < 0) || (line >= GENI_UART_CONS_PORTS))
 			return ERR_PTR(-ENXIO);
 		port = &msm_geni_console_port;
@@ -749,7 +750,8 @@ static void msm_geni_serial_console_write(struct console *co, const char *s,
 	int locked = 1;
 	unsigned long flags;
 
-	WARN_ON(co->index < 0 || co->index >= GENI_UART_NR_PORTS);
+	/* Max 1 port supported as of now */
+	WARN_ON(co->index < 0 || co->index >= GENI_UART_CONS_PORTS);
 
 	port = get_port_from_line(co->index, true);
 	if (IS_ERR_OR_NULL(port))
@@ -2044,7 +2046,8 @@ static int __init msm_geni_console_setup(struct console *co, char *options)
 	int flow = 'n';
 	int ret = 0;
 
-	if (unlikely(co->index >= GENI_UART_NR_PORTS  || co->index < 0))
+	/* Max 1 port supported as of now */
+	if (unlikely(co->index >= GENI_UART_CONS_PORTS  || co->index < 0))
 		return -ENXIO;
 
 	dev_port = get_port_from_line(co->index, true);
@@ -2205,7 +2208,7 @@ static struct uart_driver msm_geni_console_driver = {
 	.owner = THIS_MODULE,
 	.driver_name = "msm_geni_console",
 	.dev_name = "ttyMSM",
-	.nr =  GENI_UART_NR_PORTS,
+	.nr =  GENI_UART_CONS_PORTS,
 	.cons = &cons_ops,
 };
 #else

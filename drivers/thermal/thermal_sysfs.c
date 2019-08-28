@@ -791,6 +791,9 @@ static ssize_t total_trans_show(struct device *dev,
 	struct cooling_dev_stats *stats = cdev->stats;
 	int ret;
 
+	if (!stats)
+		return -ENODEV;
+
 	spin_lock(&stats->lock);
 	ret = sprintf(buf, "%u\n", stats->total_trans);
 	spin_unlock(&stats->lock);
@@ -806,6 +809,9 @@ time_in_state_ms_show(struct device *dev, struct device_attribute *attr,
 	struct cooling_dev_stats *stats = cdev->stats;
 	ssize_t len = 0;
 	int i;
+
+	if (!stats)
+		return -ENODEV;
 
 	spin_lock(&stats->lock);
 	update_time_in_state(stats);
@@ -825,8 +831,12 @@ reset_store(struct device *dev, struct device_attribute *attr, const char *buf,
 {
 	struct thermal_cooling_device *cdev = to_cooling_device(dev);
 	struct cooling_dev_stats *stats = cdev->stats;
-	int i, states = stats->max_states;
+	int i, states;
 
+	if (!stats)
+		return -ENODEV;
+
+	states = stats->max_states;
 	spin_lock(&stats->lock);
 
 	stats->total_trans = 0;
@@ -849,6 +859,9 @@ static ssize_t trans_table_show(struct device *dev,
 	struct cooling_dev_stats *stats = cdev->stats;
 	ssize_t len = 0;
 	int i, j;
+
+	if (!stats)
+		return -ENODEV;
 
 	len += snprintf(buf + len, PAGE_SIZE - len, " From  :    To\n");
 	len += snprintf(buf + len, PAGE_SIZE - len, "       : ");

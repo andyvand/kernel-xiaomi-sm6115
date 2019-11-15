@@ -773,7 +773,6 @@ struct msm_pcie_dev_t {
 	void *ipc_log_dump;
 	bool use_19p2mhz_aux_clk;
 	bool use_pinctrl;
-	bool enable_l1ss_timeout;
 	struct pinctrl *pinctrl;
 	struct pinctrl_state *pins_default;
 	struct pinctrl_state *pins_sleep;
@@ -7063,8 +7062,6 @@ static void __msm_pcie_l1ss_timeout_enable(struct msm_pcie_dev_t *pcie_dev)
 
 	msm_pcie_write_mask(pcie_dev->parf +
 			PCIE20_PARF_DEBUG_INT_EN, 0, BIT(0));
-
-	pcie_dev->enable_l1ss_timeout = true;
 }
 
 /* Suspend the PCIe link */
@@ -7089,9 +7086,6 @@ static int msm_pcie_pm_suspend(struct pci_dev *dev,
 			pcie_dev->rc_idx);
 		return ret;
 	}
-
-	if (pcie_dev->enable_l1ss_timeout)
-		__msm_pcie_l1ss_timeout_disable(pcie_dev);
 
 	if (dev && !(options & MSM_PCIE_CONFIG_NO_CFG_RESTORE)
 		&& msm_pcie_confirm_linkup(pcie_dev, true, true,
@@ -7243,9 +7237,6 @@ static int msm_pcie_pm_resume(struct pci_dev *dev,
 			"RC%d: exit of PCIe recover config\n",
 			pcie_dev->rc_idx);
 	}
-
-	if (pcie_dev->enable_l1ss_timeout)
-		__msm_pcie_l1ss_timeout_enable(pcie_dev);
 
 	PCIE_DBG(pcie_dev, "RC%d: exit\n", pcie_dev->rc_idx);
 

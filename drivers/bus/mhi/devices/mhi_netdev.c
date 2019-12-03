@@ -157,7 +157,7 @@ static int mhi_netdev_poll(struct napi_struct *napi, int budget)
 	struct mhi_device *mhi_dev = mhi_netdev->mhi_dev;
 	int rx_work = 0;
 
-	MSG_VERB("Entered\n");
+	MSG_VERB("Entr:%d\n", budget);
 
 	rx_work = mhi_poll(mhi_dev, budget);
 	if (rx_work < 0) {
@@ -173,7 +173,7 @@ static int mhi_netdev_poll(struct napi_struct *napi, int budget)
 	if (rx_work < budget)
 		napi_complete(napi);
 
-	MSG_VERB("polled %d pkts\n", rx_work);
+	MSG_VERB("polled %d\n", rx_work);
 
 	return rx_work;
 }

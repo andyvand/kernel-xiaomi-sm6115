@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 /*
  * Copyright (c) 2012-2017 Qualcomm Atheros, Inc.
- * Copyright (c) 2018-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/etherdevice.h>
@@ -1018,7 +1018,7 @@ static int wil_cfg80211_change_iface(struct wiphy *wiphy,
 	struct wil6210_vif *vif = ndev_to_vif(ndev);
 	struct wireless_dev *wdev = vif_to_wdev(vif);
 	int rc;
-	bool fw_reset = false;
+	bool compressed_rx_status, fw_reset = false;
 
 	wil_dbg_misc(wil, "change_iface: type=%d\n", type);
 
@@ -1029,6 +1029,13 @@ static int wil_cfg80211_change_iface(struct wiphy *wiphy,
 			return rc;
 		}
 	}
+
+	/* monitor mode uses uncompressed rx status to get phy statistics */
+	compressed_rx_status = wil->use_compressed_rx_status;
+	if (type == NL80211_IFTYPE_MONITOR)
+		wil->use_compressed_rx_status = false;
+	else if (wdev->iftype == NL80211_IFTYPE_MONITOR)
+		wil->use_compressed_rx_status =  true;
 
 	/* do not reset FW when there are active VIFs,
 	 * because it can cause significant disruption
@@ -1043,7 +1050,7 @@ static int wil_cfg80211_change_iface(struct wiphy *wiphy,
 		mutex_unlock(&wil->mutex);
 
 		if (rc)
-			return rc;
+			goto fail;
 		fw_reset = true;
 	}
 
@@ -1058,7 +1065,8 @@ static int wil_cfg80211_change_iface(struct wiphy *wiphy,
 			wil->monitor_flags = params->flags;
 		break;
 	default:
-		return -EOPNOTSUPP;
+		rc = -EOPNOTSUPP;
+		goto fail;
 	}
 
 	if (vif->mid != 0 && wil_has_active_ifaces(wil, true, false)) {
@@ -1066,14 +1074,18 @@ static int wil_cfg80211_change_iface(struct wiphy *wiphy,
 			wil_vif_prepare_stop(vif);
 		rc = wmi_port_delete(wil, vif->mid);
 		if (rc)
-			return rc;
+			goto fail;
 		rc = wmi_port_allocate(wil, vif->mid, ndev->dev_addr, type);
 		if (rc)
-			return rc;
+			goto fail;
 	}
 
 	wdev->iftype = type;
 	return 0;
+
+fail:
+	wil->use_compressed_rx_status = compressed_rx_status;
+	return rc;
 }
 
 static int wil_cfg80211_scan(struct wiphy *wiphy,

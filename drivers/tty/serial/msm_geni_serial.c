@@ -1625,7 +1625,6 @@ static void set_rfr_wm(struct msm_geni_serial_port *port)
 static void msm_geni_serial_shutdown(struct uart_port *uport)
 {
 	struct msm_geni_serial_port *msm_port = GET_DEV_PORT(uport);
-	unsigned long flags;
 	int ret;
 
 	/* Stop the console before stopping the current tx */
@@ -1638,10 +1637,6 @@ static void msm_geni_serial_shutdown(struct uart_port *uport)
 
 	disable_irq(uport->irq);
 	free_irq(uport->irq, uport);
-	spin_lock_irqsave(&uport->lock, flags);
-	msm_geni_serial_stop_tx(uport);
-	msm_geni_serial_stop_rx(uport);
-	spin_unlock_irqrestore(&uport->lock, flags);
 
 	if (!uart_console(uport)) {
 		if (msm_port->ioctl_count) {
